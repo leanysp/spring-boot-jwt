@@ -29,7 +29,7 @@ public class ClienteDaoImpl implements IClienteDao {
 	@Override
 	public void save(Cliente cliente) {
 		// TODO Auto-generated method stub
-		
+		em.persist(cliente);
 	}
 
 }
