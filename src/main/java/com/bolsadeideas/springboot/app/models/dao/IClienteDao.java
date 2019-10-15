@@ -15,5 +15,12 @@ public interface IClienteDao {
 	 * metodo para guardar u nuevo cliente
 	 */
 	public void save(Cliente cliente);
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Cliente findOne(Long id);
 
 }
