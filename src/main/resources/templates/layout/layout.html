@@ -25,10 +25,10 @@
 				</ul>
 			</div>
 		</nav>
-		<div class="alert alert-success" th:text="${success}"></div>
-		<div class="alert alert-danger" th:text="${danger}"></div>
-		<div class="alert alert-warning" th:text="${warning}"></div>
-		<div class="alert alert-info" th:text="${info}"></div>
+		<div class="alert alert-success" th:if="${success != null}" th:text="${success}"></div>
+		<div class="alert alert-danger" th:if="${danger != null}" th:text="${danger}"></div>
+		<div class="alert alert-warning" th:if="${warning != null}" th:text="${warning}"></div>
+		<div class="alert alert-info" th:if="${info != null}" th:text="${info}"></div>
 	</header>
 	<div class="container">
 		<footer th:fragment="footer" class="container">
@@ -43,9 +43,10 @@
 			profesor Andrés Guzmán.<br/> &Copy;Company 2017, Inc. Todos los derechos reservados.
 			Terminos de uso y privacidad.<br/>
 			</p>
+	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
 	<script
 		th:src="@{/js/bootstrap.min.js}"></script>
-	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+	
 	</footer>
 	</div>
 
