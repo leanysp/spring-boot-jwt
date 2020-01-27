@@ -35,6 +35,20 @@ public class ClienteController {
 	@Autowired
 	private IClienteService clienteService;
 	
+	@RequestMapping("/ver/{id}")
+	public String ver(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+		Cliente cliente = clienteService.findOne(id);
+		if(cliente==null) {
+			flash.addFlashAttribute("error", "el cliente no existe en la base de datos");
+			return "redirect:/listar";
+		}
+		
+		model.put("cliente", cliente);
+		model.put("titulo", "Detalle cliente: "+cliente.getNombre());
+		
+		return "ver";
+	}
+	
 	@RequestMapping(value= "/listar", method=RequestMethod.GET)
 	public String listar(@RequestParam(name="page", defaultValue= "0") int page, Model model) {
 		
@@ -86,8 +100,7 @@ public class ClienteController {
 		}
 		
 		if(!foto.isEmpty()) {
-			Path directorioRecursos = Paths.get("src//main//resources//static/uploads");
-			String rootPath=directorioRecursos.toFile().getAbsolutePath();
+			String rootPath= "C://Temp//uploads";
 			
 			try {
 				byte[] bytes = foto.getBytes();
