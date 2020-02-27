@@ -1,6 +1,7 @@
 package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,12 +13,17 @@ import javax.validation.Valid;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +45,23 @@ public class ClienteController {
 	
 	@Autowired
 	private IClienteService clienteService;
+	
+	@GetMapping(value="/uploads/{filename:.+}")
+	public ResponseEntity<Resource> verFoto (@PathVariable String filename){
+		Path pathFoto = Paths.get("uploads").resolve(filename).toAbsolutePath();
+		log.info("PathFoto: " + pathFoto);
+		Resource recurso= null;
+		try {
+			recurso= new UrlResource(pathFoto.toUri());
+			if(!recurso.exists() && !recurso.isReadable()) {
+				throw new RuntimeException("Error: no se cargr la imagen: "+ pathFoto.toString());
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ recurso.getFilename()+"\"").body(recurso);
+	}
 	
 	@RequestMapping("/ver/{id}")
 	public String ver(@PathVariable(value="id") Long id, Map<String, Object> model, RedirectAttributes flash) {
@@ -106,7 +129,7 @@ public class ClienteController {
 		
 		if(!foto.isEmpty()) {
 			String uniqueFilename = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
-			Path rootPath= Paths.get("uploads").resolve(foto.getOriginalFilename());
+			Path rootPath= Paths.get("uploads").resolve(uniqueFilename);
 			
 			Path rootAbsolutPath = rootPath.toAbsolutePath();
 			
@@ -114,13 +137,8 @@ public class ClienteController {
 			log.info("rootAbsolutPath: "+ rootAbsolutPath);
 				
 			try {
-				/*byte[] bytes = foto.getBytes();
-				Path rutaCompleta= Paths.get(rootPath + "//" + foto.getOriginalFilename());
-				Files.write(rutaCompleta, bytes);
-				flash.addFlashAttribute("info", "has subido correctamente '" + foto.getOriginalFilename()+"'");*/
 				
-				
-				Files.copy(foto.getInputStream(), rootAbsolutPath);
+				Files.copy(foto.getInputStream(), rootAbsolutPath);				
 				flash.addFlashAttribute("info", "has subido correctamente '" + uniqueFilename +"'");
 				cliente.setFoto(uniqueFilename);
 				
