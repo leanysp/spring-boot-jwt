@@ -67,5 +67,11 @@ public interface IClienteService {
 	 * @return
 	 */
 	public Factura findFacturaById(Long id);
+	
+	/**
+	 * 
+	 * @param id
+	 */
+	public void deleteFactura(Long id);
 
 }
