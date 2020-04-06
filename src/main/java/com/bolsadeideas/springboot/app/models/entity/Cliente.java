@@ -120,6 +120,15 @@ public class Cliente implements Serializable {
 	public void addFactura(Factura factura) {
 		facturas.add(factura);
 	}
+	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return nombre + " " + apellido;
+	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;

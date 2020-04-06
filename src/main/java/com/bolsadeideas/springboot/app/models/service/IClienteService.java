@@ -60,5 +60,12 @@ public interface IClienteService {
 	 * @return
 	 */
 	public Producto findProductoById(Long id);
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Factura findFacturaById(Long id);
 
 }
