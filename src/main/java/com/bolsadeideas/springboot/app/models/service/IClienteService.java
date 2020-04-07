@@ -38,6 +38,13 @@ public interface IClienteService {
 	/**
 	 * 
 	 * @param id
+	 * @return
+	 */
+	public Cliente fetchByIdWithFacturas(Long id);
+	
+	/**
+	 * 
+	 * @param id
 	 */
 	public void delete(Long id);
 	
