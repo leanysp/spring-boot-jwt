@@ -1,7 +1,6 @@
 package com.bolsadeideas.springboot.app;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -20,6 +19,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
 	private LoginSuccessHandler successHandler;
+	
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter#configure(org.springframework.security.config.annotation.web.builders.HttpSecurity)
@@ -45,14 +47,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 		
 	}
 
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
 	@Autowired
 	public void ConfigurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
-		PasswordEncoder encoder = passwordEncoder(); 
+		PasswordEncoder encoder = this.passwordEncoder; 
 		UserBuilder users = User.builder().passwordEncoder(encoder::encode);
 		
 		builder.inMemoryAuthentication()
