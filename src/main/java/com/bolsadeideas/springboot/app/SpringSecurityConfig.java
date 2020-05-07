@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
+import com.bolsadeideas.springboot.app.models.service.JpaUserDetailsService;
 
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration
@@ -20,10 +21,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 	private LoginSuccessHandler successHandler;
 	
 	@Autowired
+	private JpaUserDetailsService userDetailsService;
+	
+	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	
 	@Autowired
-	private DataSource dataSource;
+	private DataSource dataSource;	
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter#configure(org.springframework.security.config.annotation.web.builders.HttpSecurity)
@@ -52,18 +56,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 	@Autowired
 	public void ConfigurerGlobal(AuthenticationManagerBuilder builder) throws Exception {
 		
-		builder.jdbcAuthentication()
-		.dataSource(dataSource)
-		.passwordEncoder(passwordEncoder)
-		.usersByUsernameQuery("select username, password, enabled from users where username = ?")
-		.authoritiesByUsernameQuery("select u.username, u.authority from authorities a inner join users u on (a.user_id = u.id) where u.username = ?");
-		/*PasswordEncoder encoder = this.passwordEncoder; 
-		UserBuilder users = User.builder().passwordEncoder(encoder::encode);
-		
-		builder.inMemoryAuthentication()
-		.withUser(users.username("admin").password("12345").roles("ADMIN","USER"))
-		.withUser(users.username("leanys").password("12345").roles("USER"));*/
-		
+		builder.userDetailsService(userDetailsService)
+		.passwordEncoder(passwordEncoder);
+
 	}
 
 }
