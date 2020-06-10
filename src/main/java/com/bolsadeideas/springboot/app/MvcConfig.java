@@ -1,6 +1,5 @@
 package com.bolsadeideas.springboot.app;
 
-import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.slf4j.Logger;
