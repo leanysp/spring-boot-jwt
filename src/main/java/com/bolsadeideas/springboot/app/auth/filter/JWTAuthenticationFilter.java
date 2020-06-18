@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.SecretKey;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -62,11 +64,12 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			Authentication authResult) throws IOException, ServletException {
 
 		String username = ((User) authResult.getPrincipal()).getUsername();
-		@SuppressWarnings("deprecation")
-		String token = Jwts.builder().setSubject(username)
-				.signWith(SignatureAlgorithm.HS512, "Alguna.Clave.Secreta.Para.El.token.123456.1234567.clave.clave.cl".getBytes()).compact();
-		response.addHeader("Authorization", "Bearer" + token);
-
+		
+		SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+		
+        String token = Jwts.builder().setSubject(username).signWith(secretKey).compact();
+        
+        response.addHeader("Authorization", "Bearer" + token);
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put("token", token);
 		body.put("user", (User) authResult.getPrincipal());
