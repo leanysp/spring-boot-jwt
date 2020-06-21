@@ -21,6 +21,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.bolsadeideas.springboot.app.models.entity.Usuario;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
@@ -43,17 +46,30 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String username = obtainUsername(request);
 		String password = obtainPassword(request);
 
-		if (username == null) {
-			username = "";
-		}
-
-		if (password == null) {
-			password = "";
-		}
 
 		if (username != null && password != null) {
 			logger.info("username desde request parameter (for-data): " + username);
 			logger.info("password desde request parameter (for-data): " + password);
+		} else {
+			Usuario user = null; 
+			try {
+				user = new ObjectMapper().readValue(request.getInputStream(), Usuario.class);
+				username = user.getUsername();
+				password = user.getPassword();
+				
+				logger.info("username desde requestInputStream(raw): " + username);
+				logger.info("password desde requestInputStream(raw): " + password);
+				
+			} catch (JsonParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		username = username.trim();
