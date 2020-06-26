@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,15 +14,24 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import com.bolsadeideas.springboot.app.auth.SimpleGrantedAuthorityMixin;
-import com.bolsadeideas.springboot.app.auth.filter.JWTAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JWTServiceImpl implements IJWTService {
+	
+	public static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+	
+	public static final long EXPIRATION_DATE = 14000000L;
+	
+	public static final String TOKEN_PREFIX = "Bearer ";
+	
+	public static final String HEADER_STRING = "Authorization";
 
 	@Override
 	public String create(Authentication auth) throws IOException {
@@ -29,10 +40,10 @@ public class JWTServiceImpl implements IJWTService {
 		Claims claims = Jwts.claims();
 		claims.put("authorities", new ObjectMapper().writeValueAsString(roles));
 
-		System.out.println("JWTAuthenticationFilter  alg " + JWTAuthenticationFilter.SECRET_KEY.getAlgorithm());
+		System.out.println("JWTAuthenticationFilter  alg " + SECRET_KEY.getAlgorithm());
 		String token = Jwts.builder().setClaims(claims).setSubject(username)
-				.signWith(JWTAuthenticationFilter.SECRET_KEY).setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + 3600000 * 4L)).compact();
+				.signWith(SECRET_KEY)
+				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_DATE)).compact();
 		return token;
 	}
 
@@ -50,7 +61,7 @@ public class JWTServiceImpl implements IJWTService {
 
 	@Override
 	public Claims getClaims(String token) {
-		Claims claims = Jwts.parserBuilder().setSigningKey(JWTAuthenticationFilter.SECRET_KEY).build()
+		Claims claims = Jwts.parserBuilder().setSigningKey(SECRET_KEY).build()
 				.parseClaimsJws(resolve(token)).getBody();
 		return claims;
 	}
@@ -71,8 +82,8 @@ public class JWTServiceImpl implements IJWTService {
 
 	@Override
 	public String resolve(String token) {
-		if (token != null && token.startsWith("Bearer ")) {
-			return token.replace("Bearer ", "");
+		if (token != null && token.startsWith(TOKEN_PREFIX)) {
+			return token.replace(TOKEN_PREFIX, "");
 		}
 		return null;
 	}
